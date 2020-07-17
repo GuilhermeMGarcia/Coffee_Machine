@@ -1,0 +1,689 @@
+type: edu
+custom_name: stage5
+files:
+- name: tests.py
+  visible: false
+  text: |
+    from hstest.stage_test import *
+    from hstest.test_case import TestCase
+
+    CheckResult.correct = lambda: CheckResult(True, '')
+    CheckResult.wrong = lambda feedback: CheckResult(False, feedback)
+
+    test1_input = '''remaining
+    buy
+    2
+    buy
+    2
+    fill
+    1000
+    0
+    0
+    0
+    buy
+    2
+    take
+    remaining
+    exit
+    '''
+
+    test2_input = '''remaining
+    fill
+    3000
+    3000
+    3000
+    3000
+    remaining
+    exit
+    '''
+
+    test3_input = '''remaining
+    buy
+    1
+    remaining
+    exit
+    '''
+
+    test4_input = '''remaining
+    buy
+    2
+    remaining
+    exit
+    '''
+
+    test5_input = '''remaining
+    buy
+    3
+    remaining
+    exit
+    '''
+
+    test6_input = '''remaining
+    take
+    remaining
+    exit
+    '''
+
+    test7_input = '''remaining
+    buy
+    back
+    remaining
+    exit
+    '''
+
+
+    class CoffeeMachineTest(StageTest):
+        def generate(self) -> List[TestCase]:
+            return TestCase.from_stepik(
+                [
+                    (
+                        test1_input,
+                        (
+                            700 - 400,
+                            390 - 540,
+                            80 - 120,
+                            7 - 9,
+                            0 - 550,
+                            "This test is exactly like in the example "
+                            "- try to run it by yourself"
+                        )
+                     ),
+
+                    (
+                        test2_input,
+                        (
+                            3000,
+                            3000,
+                            3000,
+                            3000,
+                            0,
+                            "This test checks \"fill\" action"
+                        )
+                    ),
+
+                    (
+                        test3_input,
+                        (
+                            -250,
+                            0,
+                            -16,
+                            -1,
+                            4,
+                            "This test checks \"buy\" " +
+                            "action with the first variant of coffee"
+                        )
+                    ),
+
+                    (
+                        test4_input,
+                        (
+                            -350,
+                            -75,
+                            -20,
+                            -1,
+                            7,
+                            "This test checks \"buy\" " +
+                            "action with the second variant of coffee"
+                        )
+                    ),
+
+                    (
+                        test5_input,
+                        (
+                            -200,
+                            -100,
+                            -12,
+                            -1,
+                            6,
+                            "This test checks \"buy\" " +
+                            "action with the third variant of coffee"
+                        )
+                    ),
+                    (
+                        test6_input,
+                        (
+                            0,
+                            0,
+                            0,
+                            0,
+                            -550,
+                            "This test checks \"take\" action"
+                        )
+                    ),
+
+                    (
+                        test7_input,
+                        (
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            "This test checks \"back\" " +
+                            "action right after \"buy\" action"
+                        )
+                    ),
+                ]
+            )
+
+        def check(self, reply: str, clue: Any) -> CheckResult:
+            if len(reply.splitlines()) <= 1:
+                return CheckResult.wrong('Too few lines in output')
+
+            water_, milk_, beans_, cups_, money_, feedback = clue
+
+            milk = []
+            water = []
+            beans = []
+            cups = []
+            money = []
+
+            for line in reply.splitlines():
+                line = line.replace('$', '').strip()
+                if len(line.split()) == 0:
+                    continue
+                first_word = line.split()[0]
+                if not first_word.isdigit():
+                    continue
+                amount = int(first_word)
+                if 'milk' in line:
+                    milk += amount,
+                elif 'water' in line:
+                    water += amount,
+                elif 'beans' in line:
+                    beans += amount,
+                elif 'cups' in line:
+                    cups += amount,
+                elif 'money' in line or 'cash' in line:
+                    money += amount,
+
+            if len(milk) != 2:
+                return CheckResult.wrong(
+                    "There should be two lines with \"milk\", " +
+                    f"found: {len(milk)}"
+                )
+
+            if len(water) != 2:
+                return CheckResult.wrong(
+                    "There should be two lines with \"water\", " +
+                    f"found: {len(water)}"
+                )
+
+            if len(beans) != 2:
+                return CheckResult.wrong(
+                    "There should be two lines with \"beans\", " +
+                    f"found: {len(beans)}"
+                )
+
+            if len(cups) != 2:
+                return CheckResult.wrong(
+                    "There should be two lines with \"cups\", " +
+                    f"found: {len(cups)}"
+                )
+
+            if len(money) != 2:
+                return CheckResult.wrong(
+                    "There should be two lines with \"money\", " +
+                    f"found: {len(money)}"
+                )
+
+            milk = milk[0], milk[-1]
+            water = water[0], water[-1]
+            beans = beans[0], beans[-1]
+            cups = cups[0], cups[-1]
+            money = money[0], money[-1]
+
+            diff = lambda item: item[1] - item[0]
+
+            is_correct = (
+                diff(water) == water_ and
+                diff(milk) == milk_ and
+                diff(beans) == beans_ and
+                diff(cups) == cups_ and
+                diff(money) == money_
+            )
+            return CheckResult(is_correct, feedback)
+
+
+    if __name__ == '__main__':
+        CoffeeMachineTest('machine.coffee_machine').run_tests()
+  learner_created: false
+- name: machine/coffee_machine.py
+  visible: true
+  text: |-
+    agua, leite, grama, copo, dinheiro = 400, 540, 120, 9, 550
+
+    # funcoes
+
+    def printar():
+        print('The coffee machine has:')
+        print(f'{agua} of water')
+        print(f'{leite} of milk')
+        print(f'{grama} of coffee beans')
+        print(f'{copo} of disposable cups')
+        print(f'{dinheiro} of money')
+        print()
+
+    def fill(aguas, leites, gramas, copos):
+        global agua, leite, grama, copo, dinheiro
+        agua += aguas
+        leite += leites
+        grama += gramas
+        copo += copos
+        print()
+        printar()
+
+    def take():
+        global agua, leite, grama, copo, dinheiro
+        print(f'I gave you ${dinheiro}')
+        dinheiro = 0
+        print()
+        printar()
+
+    def buy_espresso():
+        global agua, leite, grama, copo, dinheiro
+        copo_expresso = 1
+        agua -= 250
+        grama -= 16
+        copo -= copo_expresso
+        dinheiro += 4
+        print()
+        printar()
+
+    def buy_latte():
+        global agua, leite, grama, copo, dinheiro
+        copo_coffe_milk = 1
+        agua -= 350
+        leite -= 75
+        grama -= 20
+        copo -= copo_coffe_milk
+        dinheiro += 7
+        print()
+        printar()
+
+    def buy_cappuccino():
+        global agua, leite, grama, copo, dinheiro
+        copo_caputino = 1
+        agua -= 200
+        leite -= 100
+        grama -= 12
+        copo -= copo_caputino
+        dinheiro += 6
+        print()
+        printar()
+
+
+    # inicio
+
+    printar()
+    print('Write action (buy, fill, take):')
+    op = input()
+    if op == 'fill':
+        print('Write how many ml of water do you want to add:')
+        aguas = int(input())
+        print('Write how many ml of milk do you want to add:')
+        leites = int(input())
+        print('Write how many grams of coffee beans do you want to add:')
+        g = int(input())
+        print('Write how many disposable cups of coffee do you want to add:')
+        copos = int(input())
+        fill(aguas, leites, g, copos)
+
+    if op == 'take':
+        take()
+
+    if op == 'buy':
+        print('What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino:')
+        op2 = int(input())
+        if op2 == 1:
+            buy_espresso()
+        elif op2 == 2:
+            buy_latte()
+        elif op2 == 3:
+            buy_cappuccino()
+  learner_created: true
+- name: machine/taks.py
+  visible: true
+  text: |
+    from cafe_expresso import  Cafe
+    # msg_cafeteira
+    saida = r'''Starting to make a coffee
+    Grinding coffee beans
+    Boiling water
+    Mixing boiled water with crushed coffee beans
+    Pouring coffee into the cup
+    Pouring some milk into the cup
+    Coffee is ready!'''
+    print(saida)
+    # cafeteira
+    water = 400
+    milk = 540
+    coffee_beans = 120
+    money = 550
+    # quantities needed per coffee
+    water_per_cup = 250
+    milk_per_cup = 50
+    beans_per_cup = 15
+    disposable_cups = 9
+
+    # funçoes
+
+
+
+
+
+    # loop_para_opção
+    opcao = ['buy', 'fill', 'take']
+
+    print('The coffee machine has:')
+    print(f'{water} for water')
+    print(f'{milk} for milk')
+    print(f'{coffee_beans} for coffee beans')
+    print(f'{disposable_cups} of disposable cups')
+    print(f'{money} for money')
+    print()
+    print('Write action (buy, fill, take):')
+    loop = True
+    while loop:
+            # cups possible based on quantities provided by user
+            water_for_n_cups = water // water_per_cup
+            milk_for_n_cups = milk // milk_per_cup
+            beans_for_n_cups = coffee_beans // beans_per_cup
+            # create list to store cups possible by resource to extrapolate min amount of cups that can be brewed
+            list = [water_for_n_cups, milk_for_n_cups, beans_for_n_cups]
+            enough_for_n_cups = min(list)
+            op = str(input())
+            if op == 'buy':
+                print('What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino:')
+                op_buy = int(input())
+                if op_buy == 3:
+                    Cafe.cafe_caputino(water,milk,coffee_beans,money, 9)
+                    loop = False
+  learner_created: true
+- name: machine/cafe_expresso.py
+  visible: true
+  text: |+
+    class Cafe:
+
+        def cafe_caputino(self,water,milk,coffee_beans,money,disposable_cups):
+            water -= 200
+            milk -= 100
+            coffee_beans -= 12
+            money += 6
+            disposable_cups -= 1
+            print('The coffee machine has:')
+            print(f'{water} for water')
+            print(f'{milk} for milk')
+            print(f'{coffee_beans} for coffee beans')
+            print(f'{disposable_cups} of disposable cups')
+            print(f'{money} for money')
+
+
+
+
+  learner_created: true
+- name: machine/cafeteira.py
+  visible: true
+  text: |+
+    class Cafeteira():
+
+        def __init__(self, agua, leite, grama, copo, dinheiro):
+            self.agua = agua
+            self.leite = leite
+            self.grama = grama
+            self.copo = copo
+            self.dinheiro = dinheiro
+
+        def printar(self):
+            print('The coffee machine has:')
+            print(f'{self.agua} of water')
+            print(f'{self.leite} of milk')
+            print(f'{self.grama} of coffee beans')
+            print(f'{self.copo} of disposable cups')
+            print(f'{self.dinheiro} of money')
+            print()
+
+        def fill(self, aguas, leites, gramas, copos):
+            self.agua += aguas
+            self.leite += leites
+            self.grama += gramas
+            self.copo += copos
+            print()
+            print('The coffee machine has:')
+            print(f'{self.agua} of water')
+            print(f'{self.leite} of milk')
+            print(f'{self.grama} of coffee beans')
+            print(f'{self.copo} of disposable cups')
+            print(f'{self.dinheiro} of money')
+
+        def take(self):
+            print(f'I gave you ${self.dinheiro}')
+            self.dinheiro = 0
+            print()
+            print('The coffee machine has:')
+            print(f'{self.agua} of water')
+            print(f'{self.leite} of milk')
+            print(f'{self.grama} of coffee beans')
+            print(f'{self.copo} of disposable cups')
+            print(f'{self.dinheiro} of money')
+
+        def buy_espresso(self):
+            copo_expresso = 1
+            self.agua -= 250
+            self.grama -= 16
+            self.copo -= copo_expresso
+            self.dinheiro += 4
+            print()
+            print('The coffee machine has:')
+            print(f'{self.agua} of water')
+            print(f'{self.leite} of milk')
+            print(f'{self.grama} of coffee beans')
+            print(f'{self.copo} of disposable cups')
+            print(f'{self.dinheiro} of money')
+
+        def buy_latte(self):
+            copo_coffe_milk = 1
+            self.agua -= 350
+            self.leite -= 75
+            self.grama -= 20
+            self.copo -= copo_coffe_milk
+            self.dinheiro += 7
+            print()
+            print('The coffee machine has:')
+            print(f'{self.agua} of water')
+            print(f'{self.leite} of milk')
+            print(f'{self.grama} of coffee beans')
+            print(f'{self.copo} of disposable cups')
+            print(f'{self.dinheiro} of money')
+
+        def buy_cappuccino(self):
+            copo_caputino = 1
+            self.agua -= 200
+            self.leite -= 100
+            self.grama -= 12
+            self.copo -= copo_caputino
+            self.dinheiro += 6
+            print()
+            print('The coffee machine has:')
+            print(f'{self.agua} of water')
+            print(f'{self.leite} of milk')
+            print(f'{self.grama} of coffee beans')
+            print(f'{self.copo} of disposable cups')
+            print(f'{self.dinheiro} of money')
+
+  learner_created: true
+- name: Coffee_Machine/main.py
+  visible: true
+  text: |-
+    from cafeteira import Cafeteira
+
+    cafeteira = Cafeteira(agua=500, leite=500, grama=500, copo=9, dinheiro=550)
+    cafeteira.printar()
+
+    print('Write action (buy, fill, take):')
+    op = input()
+    if op == 'fill':
+        print('Write how many ml of water do you want to add:')
+        aguas = int(input())
+        print('Write how many ml of milk do you want to add:')
+        leites = int(input())
+        print('Write how many grams of coffee beans do you want to add:')
+        g = int(input())
+        print('Write how many disposable cups of coffee do you want to add:')
+        copos = int(input())
+        cafeteira.fill(aguas, leites, g, copos)
+
+    if op == 'take':
+        cafeteira.take()
+
+    if op == 'buy':
+        print('What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino:')
+        op2 = int(input())
+        if op2 == 1:
+            cafeteira.buy_espresso()
+        elif op2 == 2:
+            cafeteira.buy_latte()
+        elif op2 == 3:
+            cafeteira.buy_cappuccino()
+  learner_created: true
+- name: Coffee_Machine/cafeteira.py
+  visible: true
+  text: |+
+    class Cafeteira():
+
+        def __init__(self, agua, leite, grama, copo, dinheiro):
+            self.agua = agua
+            self.leite = leite
+            self.grama = grama
+            self.copo = copo
+            self.dinheiro = dinheiro
+
+        def printar(self):
+            print('The coffee machine has:')
+            print(f'{self.agua} of water')
+            print(f'{self.leite} of milk')
+            print(f'{self.grama} of coffee beans')
+            print(f'{self.copo} of disposable cups')
+            print(f'{self.dinheiro} of money')
+            print()
+
+        def fill(self, aguas, leites, gramas, copos):
+            self.agua += aguas
+            self.leite += leites
+            self.grama += gramas
+            self.copo += copos
+            print()
+            print('The coffee machine has:')
+            print(f'{self.agua} of water')
+            print(f'{self.leite} of milk')
+            print(f'{self.grama} of coffee beans')
+            print(f'{self.copo} of disposable cups')
+            print(f'{self.dinheiro} of money')
+
+        def take(self):
+            print(f'I gave you ${self.dinheiro}')
+            self.dinheiro = 0
+            print()
+            print('The coffee machine has:')
+            print(f'{self.agua} of water')
+            print(f'{self.leite} of milk')
+            print(f'{self.grama} of coffee beans')
+            print(f'{self.copo} of disposable cups')
+            print(f'{self.dinheiro} of money')
+
+        def buy_espresso(self):
+            copo_expresso = 1
+            self.agua -= 250
+            self.grama -= 16
+            self.copo -= copo_expresso
+            self.dinheiro += 4
+            print()
+            print('The coffee machine has:')
+            print(f'{self.agua} of water')
+            print(f'{self.leite} of milk')
+            print(f'{self.grama} of coffee beans')
+            print(f'{self.copo} of disposable cups')
+            print(f'{self.dinheiro} of money')
+
+        def buy_latte(self):
+            copo_coffe_milk = 1
+            self.agua -= 350
+            self.leite -= 75
+            self.grama -= 20
+            self.copo -= copo_coffe_milk
+            self.dinheiro += 7
+            print()
+            print('The coffee machine has:')
+            print(f'{self.agua} of water')
+            print(f'{self.leite} of milk')
+            print(f'{self.grama} of coffee beans')
+            print(f'{self.copo} of disposable cups')
+            print(f'{self.dinheiro} of money')
+
+        def buy_cappuccino(self):
+            copo_caputino = 1
+            self.agua -= 200
+            self.leite -= 100
+            self.grama -= 12
+            self.copo -= copo_caputino
+            self.dinheiro += 6
+            print()
+            print('The coffee machine has:')
+            print(f'{self.agua} of water')
+            print(f'{self.leite} of milk')
+            print(f'{self.grama} of coffee beans')
+            print(f'{self.copo} of disposable cups')
+            print(f'{self.dinheiro} of money')
+
+  learner_created: true
+- name: Coffee_Machine/machine.py
+  visible: true
+  text: |+
+    #msg coffe_machine
+
+    saida = r'''Starting to make a coffee
+    Grinding coffee beans
+    Boiling water
+    Mixing boiled water with crushed coffee beans
+    Pouring coffee into the cup
+    Pouring some milk into the cup
+    Coffee is ready!'''
+    print(saida)
+
+    # quantities needed per coffee
+    water_per_cup = 200
+    milk_per_cup = 50
+    beans_per_cup = 15
+
+    # user inputs
+    print('Water')
+    water_available = int(input())
+    print('Milk')
+    milk_available = int(input())
+    print('Beans')
+    beans_available = int(input())
+    print('Cups')
+    cups_requested = int(input())
+
+    # cups possible based on quantities provided by user
+    water_for_n_cups = water_available // water_per_cup
+    milk_for_n_cups = milk_available // milk_per_cup
+    beans_for_n_cups = beans_available // beans_per_cup
+
+    # create list to store cups possible by resource to extrapolate min amount of cups that can be brewed
+    list = [water_for_n_cups, milk_for_n_cups, beans_for_n_cups]
+
+    enough_for_n_cups = min(list)
+    copos_sobrando = enough_for_n_cups - cups_requested
+    if enough_for_n_cups == cups_requested:
+        print("Yes, I can make that amount of coffee")
+    elif enough_for_n_cups > cups_requested:
+        print(f'Yes, I can make that amount of coffee (and even {copos_sobrando} more than that)')
+    elif enough_for_n_cups < cups_requested:
+        print(f'No, I can make only {enough_for_n_cups} cups of coffee')
+
+
+  learner_created: true
+feedback_link: https://hyperskill.org/projects/68/stages/370/implement
+status: Solved
+record: 5

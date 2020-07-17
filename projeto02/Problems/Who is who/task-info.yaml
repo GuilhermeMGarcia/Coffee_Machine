@@ -1,0 +1,19 @@
+type: code
+files:
+- name: task.py
+  visible: true
+  text: |-
+    class Angel:
+        color = "white"
+        feature = "wings"
+        home = "Heaven"
+
+
+    class Demon:
+        color = "red"
+        feature = "horns"
+        home = "Hell"
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/6668
+status: Solved
+record: -1

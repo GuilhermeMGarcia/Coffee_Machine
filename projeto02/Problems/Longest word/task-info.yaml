@@ -1,0 +1,13 @@
+type: code
+files:
+- name: task.py
+  visible: true
+  text: |-
+    word1 = input()
+    word2 = input()
+
+    # How many letters does the longest word contain?
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/8437
+status: Solved
+record: -1

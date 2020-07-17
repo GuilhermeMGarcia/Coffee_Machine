@@ -1,0 +1,9 @@
+type: code
+files:
+- name: task.py
+  visible: true
+  text: '# start a RockBand here'
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/6667
+status: Solved
+record: -1

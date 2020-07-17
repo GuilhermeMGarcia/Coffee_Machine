@@ -1,0 +1,17 @@
+type: code
+files:
+- name: task.py
+  visible: true
+  text: |-
+    class Movie:
+        # create class here
+
+
+    # objects of the class Movie
+    titanic = # ...
+    star_wars = # ...
+    fight_club = # ...
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/6674
+status: Solved
+record: -1

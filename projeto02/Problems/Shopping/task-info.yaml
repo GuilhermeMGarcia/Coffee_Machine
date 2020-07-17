@@ -1,0 +1,15 @@
+type: code
+files:
+- name: task.py
+  visible: true
+  text: |-
+    class Store:
+        def __init__(name, category):
+            name = self.name
+
+    shop = Store("GAP", "clothes")
+    print(shop.name, shop.category)
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/6673
+status: Solved
+record: -1

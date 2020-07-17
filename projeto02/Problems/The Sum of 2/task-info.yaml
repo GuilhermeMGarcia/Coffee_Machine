@@ -1,0 +1,12 @@
+type: code
+files:
+- name: task.py
+  visible: true
+  text: |-
+    # implement the function below
+    def get_sum(a, b):
+        pass
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/5908
+status: Solved
+record: -1
